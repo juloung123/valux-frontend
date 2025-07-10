@@ -123,6 +123,43 @@ import { Send, MessageCircle } from 'lucide-react'; // ✅ Correct
 import { Telegram, Discord } from 'lucide-react';   // ❌ Not available
 ```
 
+#### Next.js 15 Viewport Metadata
+If you encounter viewport metadata errors:
+```typescript
+// ❌ Old way (Next.js 14 and below)
+export const metadata: Metadata = {
+  title: "App",
+  viewport: "width=device-width, initial-scale=1",
+};
+
+// ✅ New way (Next.js 15+)
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
+export const metadata: Metadata = {
+  title: "App",
+  // viewport removed from here
+};
+```
+
+#### Mobile Responsive Issues
+Common mobile layout problems and solutions:
+```css
+/* ❌ Elements overflowing on mobile */
+.flex items-center space-x-3
+.text-2xl
+.px-3 py-2
+
+/* ✅ Responsive design with breakpoints */
+.flex items-center space-x-2 sm:space-x-3
+.text-xl sm:text-2xl
+.px-2 sm:px-3 py-2
+.flex-shrink-0  /* Prevent button shrinking */
+.min-w-0       /* Allow input to shrink properly */
+```
+
 ### Code Style
 
 - Follow TypeScript best practices

@@ -280,6 +280,49 @@ import { Telegram, Discord } from 'lucide-react';
 import { Send, MessageCircle } from 'lucide-react';
 ```
 
+### Next.js 15 Viewport Metadata
+**Problem**: `Unsupported metadata viewport is configured in metadata export`
+**Solution**: Separate viewport from metadata export
+```tsx
+// ❌ Old way (Next.js 14 and below)
+export const metadata: Metadata = {
+  title: "App",
+  viewport: "width=device-width, initial-scale=1",
+};
+
+// ✅ New way (Next.js 15+)
+import type { Metadata, Viewport } from "next";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
+export const metadata: Metadata = {
+  title: "App",
+  // viewport removed from here
+};
+```
+
+### Mobile Responsive Issues
+**Problem**: Elements overflowing on mobile, buttons too large
+**Solution**: Use responsive breakpoints and proper flex properties
+```tsx
+// ❌ Not responsive - elements overflow
+<div className="flex items-center space-x-3">
+  <input className="flex-1 text-2xl" />
+  <button className="px-3 py-2">Token</button>
+</div>
+
+// ✅ Responsive design
+<div className="flex items-center space-x-2 sm:space-x-3">
+  <input className="flex-1 text-xl sm:text-2xl min-w-0" />
+  <button className="px-2 sm:px-3 py-2 flex-shrink-0">
+    <span className="text-sm sm:text-base">Token</span>
+  </button>
+</div>
+```
+
 ### Build Errors
 1. **TypeScript Errors**: Check types, avoid `any`
 2. **Missing Dependencies**: Run `npm install`

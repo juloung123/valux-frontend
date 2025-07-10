@@ -15,19 +15,19 @@ export default function SwapPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-purple-900 py-8">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-purple-900 py-4 sm:py-8">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-8">
         <div className="max-w-md mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
               Swap Tokens
             </h1>
-            <p className="text-gray-600 dark:text-gray-300">
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
               Trade tokens instantly with the best rates
             </p>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-6 glass-effect">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-4 sm:p-6 glass-effect">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Swap
@@ -44,23 +44,23 @@ export default function SwapPage() {
                   <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     From
                   </label>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                  <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                     Balance: 2.5 ETH
                   </span>
                 </div>
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2 sm:space-x-3">
                   <input
                     type="number"
                     value={fromAmount}
                     onChange={(e) => setFromAmount(e.target.value)}
                     placeholder="0.0"
-                    className="flex-1 bg-transparent text-2xl font-semibold text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none"
+                    className="flex-1 bg-transparent text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none min-w-0"
                   />
-                  <button className="flex items-center space-x-2 bg-white dark:bg-slate-600 px-3 py-2 rounded-lg font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-slate-500 transition-colors">
-                    <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                  <button className="flex items-center space-x-1 sm:space-x-2 bg-white dark:bg-slate-600 px-2 sm:px-3 py-2 rounded-lg font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-slate-500 transition-colors flex-shrink-0">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-500 rounded-full flex items-center justify-center">
                       <span className="text-white text-xs font-bold">E</span>
                     </div>
-                    <span>{fromToken}</span>
+                    <span className="text-sm sm:text-base">{fromToken}</span>
                   </button>
                 </div>
               </div>
@@ -78,23 +78,23 @@ export default function SwapPage() {
                   <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     To
                   </label>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                  <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                     Balance: 1,250.0 USDC
                   </span>
                 </div>
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2 sm:space-x-3">
                   <input
                     type="number"
                     value={toAmount}
                     onChange={(e) => setToAmount(e.target.value)}
                     placeholder="0.0"
-                    className="flex-1 bg-transparent text-2xl font-semibold text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none"
+                    className="flex-1 bg-transparent text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none min-w-0"
                   />
-                  <button className="flex items-center space-x-2 bg-white dark:bg-slate-600 px-3 py-2 rounded-lg font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-slate-500 transition-colors">
-                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                  <button className="flex items-center space-x-1 sm:space-x-2 bg-white dark:bg-slate-600 px-2 sm:px-3 py-2 rounded-lg font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-slate-500 transition-colors flex-shrink-0">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-500 rounded-full flex items-center justify-center">
                       <span className="text-white text-xs font-bold">U</span>
                     </div>
-                    <span>{toToken}</span>
+                    <span className="text-sm sm:text-base">{toToken}</span>
                   </button>
                 </div>
               </div>
@@ -132,7 +132,7 @@ export default function SwapPage() {
           </div>
 
           {/* Additional Info */}
-          <div className="mt-6 bg-white dark:bg-slate-800 rounded-xl p-4 glass-effect">
+          <div className="mt-6 bg-white dark:bg-slate-800 rounded-xl p-3 sm:p-4 glass-effect">
             <div className="flex items-center space-x-2 mb-3">
               <Info className="w-5 h-5 text-blue-500" />
               <h3 className="font-semibold text-gray-900 dark:text-white">
