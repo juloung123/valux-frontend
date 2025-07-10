@@ -188,6 +188,25 @@ Common mobile layout problems and solutions:
 - Position management
 - APY calculations
 
+## 🚀 Deployment
+
+### Vercel (Recommended)
+1. Connect your GitHub repository to Vercel
+2. Configure environment variables (if any)
+3. Deploy with automatic builds on push
+
+### Other Platforms
+- **Netlify**: Drag and drop the `out` folder after `npm run build`
+- **GitHub Pages**: Use `gh-pages` package for static deployment
+- **Docker**: Build container with provided Dockerfile (coming soon)
+
+### Environment Variables
+Create a `.env.local` file for local development:
+```env
+NEXT_PUBLIC_APP_NAME=Valux
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
 ## 🎯 Features Roadmap
 
 - [ ] Wallet connectivity (MetaMask, WalletConnect)
