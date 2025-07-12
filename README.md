@@ -6,7 +6,7 @@ A production-ready DeFi automation platform built with modern web technologies. 
 
 - **🏦 DeFi Vaults**: Browse and interact with curated DeFi vaults with advanced filtering
 - **📊 Portfolio Dashboard**: Real-time investment tracking with comprehensive P/L analysis
-- **⚙️ Rules Engine**: Visual automation builder for profit distribution rules
+- **⚙️ Rules Engine**: Mobile-responsive automation builder for profit distribution rules
 - **📈 Analytics**: Platform-wide metrics with interactive charts and insights
 - **🔗 Web3 Integration**: Seamless multi-wallet support via RainbowKit
 - **📱 Mobile Responsive**: Optimized for all devices with touch-friendly interactions
@@ -84,7 +84,7 @@ src/
 │   ├── page.tsx           # Landing page
 │   ├── vaults/            # Vaults management
 │   ├── dashboard/         # Enhanced portfolio dashboard
-│   ├── rules/             # Rules engine
+│   ├── rules/             # Mobile-optimized rules engine
 │   ├── analytics/         # Platform analytics
 │   └── layout.tsx         # Root layout
 ├── components/            # React components
