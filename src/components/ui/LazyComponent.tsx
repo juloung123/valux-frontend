@@ -1,3 +1,4 @@
+import React from 'react'
 import dynamic from 'next/dynamic'
 import { LoadingSpinner } from './Loading'
 
@@ -7,14 +8,15 @@ export const LazyModal = dynamic(() => import('./Modal'), {
   ssr: false,
 })
 
-export const LazyChart = dynamic(() => import('../charts/Chart'), {
-  loading: () => (
-    <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
-      <LoadingSpinner size="lg" />
-    </div>
-  ),
-  ssr: false,
-})
+// TODO: Create Chart component when needed
+// export const LazyChart = dynamic(() => import('../charts/Chart'), {
+//   loading: () => (
+//     <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
+//       <LoadingSpinner size="lg" />
+//     </div>
+//   ),
+//   ssr: false,
+// })
 
 // HOC for lazy loading any component
 export function withLazyLoading<P extends object>(

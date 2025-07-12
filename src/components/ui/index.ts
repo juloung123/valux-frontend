@@ -9,5 +9,6 @@ export {
   LoadingOverlay, 
   Skeleton, 
   SkeletonCard, 
-  SkeletonTable 
+  SkeletonTable,
+  Loading
 } from './Loading'

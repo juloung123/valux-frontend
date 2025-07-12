@@ -1,75 +1,23 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Search, Filter, TrendingUp, Shield, Info } from 'lucide-react'
 import { RISK_LEVELS } from '@/lib/constants'
-import { type Vault, type RiskLevel } from '@/types'
-import { Card, CardHeader, CardContent, CardFooter, Button, Badge, Input } from '@/components/ui'
-import { useDebounce } from '@/hooks'
+import { type Vault, type RiskLevel, type VaultFilters } from '@/types'
+import { Card, CardHeader, CardContent, CardFooter, Button, Badge, Input, Loading } from '@/components/ui'
+import { useDebounce, useAsync } from '@/hooks'
+import { vaultService } from '@/mock'
 
-// Mock data - replace with actual API call
-const mockVaults: Vault[] = [
-  {
-    id: '1',
-    name: 'USDC Savings Vault',
-    protocol: 'Aave',
-    asset: 'USDC',
-    apy: '4.2%',
-    tvl: '$2.4M',
-    risk: 'Low',
-    description: 'Stable yield with USDC lending on Aave protocol',
-    features: ['Auto-compounding', 'Insurance covered', 'Instant withdrawals'],
-    isInsured: true,
-    minDeposit: '100',
-    category: 'stable'
-  },
-  {
-    id: '2',
-    name: 'ETH Staking Vault',
-    protocol: 'Lido',
-    asset: 'ETH',
-    apy: '3.8%',
-    tvl: '$5.2M',
-    risk: 'Medium',
-    description: 'Ethereum 2.0 staking with liquid staking tokens',
-    features: ['Liquid staking', 'Weekly rewards', 'No lock-up period'],
-    minDeposit: '0.1',
-    category: 'yield'
-  },
-  {
-    id: '3',
-    name: 'BTC Yield Vault',
-    protocol: 'Compound',
-    asset: 'WBTC',
-    apy: '2.1%',
-    tvl: '$1.8M',
-    risk: 'Low',
-    description: 'Conservative Bitcoin yield through Compound lending',
-    features: ['Stable returns', 'Audited protocol', 'Real-time tracking'],
-    minDeposit: '0.01',
-    category: 'stable'
-  },
-  {
-    id: '4',
-    name: 'High Yield DeFi',
-    protocol: 'Curve',
-    asset: 'CRV-LP',
-    apy: '12.5%',
-    tvl: '$890K',
-    risk: 'High',
-    description: 'High-yield farming with Curve LP tokens',
-    features: ['High APY', 'Auto-harvest', 'Impermanent loss protection'],
-    minDeposit: '500',
-    category: 'growth'
-  }
-]
-
-interface VaultFilters {
-  search: string
-  risk: string
-  category: string
-  minAPY: string
-}
+/**
+ * Vaults Page Component
+ * 
+ * TODO: Future API Integration Tasks:
+ * 1. Replace vaultService with real API client
+ * 2. Add real-time vault data updates via WebSocket
+ * 3. Implement vault deposit/withdrawal with smart contracts
+ * 4. Add vault performance charts and analytics
+ * 5. Integrate with user authentication for personalized data
+ */
 
 const VaultsPage = () => {
   const [filters, setFilters] = useState<VaultFilters>({
@@ -82,23 +30,23 @@ const VaultsPage = () => {
   // Debounce search input for better performance
   const debouncedSearch = useDebounce(filters.search, 300)
 
-  // Filter vaults based on current filters
-  const filteredVaults = useMemo(() => {
-    return mockVaults.filter(vault => {
-      const matchesSearch = 
-        vault.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-        vault.asset.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-        vault.protocol.toLowerCase().includes(debouncedSearch.toLowerCase())
-      
-      const matchesRisk = filters.risk === 'All' || vault.risk === filters.risk
-      const matchesCategory = filters.category === 'All' || vault.category === filters.category
-      
-      const matchesAPY = !filters.minAPY || 
-        parseFloat(vault.apy.replace('%', '')) >= parseFloat(filters.minAPY)
+  // Use async hook for vault data fetching
+  // TODO: Replace with real API endpoint when backend is ready
+  const { data: vaults, loading, error, execute: fetchVaults } = useAsync(vaultService.getVaults)
 
-      return matchesSearch && matchesRisk && matchesCategory && matchesAPY
-    })
-  }, [debouncedSearch, filters.risk, filters.category, filters.minAPY])
+  // Fetch vaults on component mount and when filters change
+  useEffect(() => {
+    const filterParams = {
+      search: debouncedSearch,
+      risk: filters.risk,
+      category: filters.category,
+      minAPY: filters.minAPY
+    }
+    fetchVaults(filterParams)
+  }, [debouncedSearch, filters.risk, filters.category, filters.minAPY, fetchVaults])
+
+  // Use fetched vaults or empty array as fallback
+  const displayVaults = vaults || []
 
   const updateFilter = (key: keyof VaultFilters, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }))
@@ -183,26 +131,47 @@ const VaultsPage = () => {
           </div>
         </Card>
 
+        {/* Error State */}
+        {error && (
+          <Card className="text-center py-8 mb-6 border-red-200 bg-red-50" padding="lg">
+            <div className="text-red-600">
+              <h3 className="text-lg font-medium mb-2">Failed to load vaults</h3>
+              <p className="mb-4">{error}</p>
+              <Button variant="primary" onClick={() => fetchVaults(filters)}>
+                Try Again
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        {/* Loading State */}
+        {loading && (
+          <div className="flex items-center justify-center py-12">
+            <Loading size="lg" />
+          </div>
+        )}
+
         {/* Results Count */}
-        <div className="mb-6 flex items-center justify-between">
-          <p className="text-sm text-gray-600">
-            Showing {filteredVaults.length} of {mockVaults.length} vaults
-          </p>
-          {filteredVaults.length !== mockVaults.length && (
+        {!loading && !error && (
+          <div className="mb-6 flex items-center justify-between">
+            <p className="text-sm text-gray-600">
+              Showing {displayVaults.length} vaults
+              {/* TODO: Add total count from API response */}
+            </p>
             <Button variant="ghost" size="sm" onClick={resetFilters}>
               Clear filters
             </Button>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Vaults Grid */}
-        {filteredVaults.length > 0 ? (
+        {!loading && !error && displayVaults.length > 0 ? (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredVaults.map((vault) => (
+            {displayVaults.map((vault) => (
               <VaultCard key={vault.id} vault={vault} />
             ))}
           </div>
-        ) : (
+        ) : !loading && !error ? (
           <Card className="text-center py-12" padding="lg">
             <div className="text-gray-500">
               <Filter className="h-12 w-12 mx-auto mb-4 text-gray-400" />
@@ -217,7 +186,7 @@ const VaultsPage = () => {
               </Button>
             </div>
           </Card>
-        )}
+        ) : null}
 
         {/* Info Section */}
         <Card className="mt-16 bg-blue-50 border-blue-200" padding="lg">
@@ -258,12 +227,21 @@ interface VaultCardProps {
 
 const VaultCard = ({ vault }: VaultCardProps) => {
   const handleDeposit = () => {
-    // TODO: Implement deposit functionality
+    // TODO: Implement real deposit functionality
+    // 1. Check user wallet connection
+    // 2. Validate deposit amount and minimum requirements
+    // 3. Call smart contract deposit function
+    // 4. Handle transaction states (pending, success, error)
+    // 5. Update user portfolio after successful deposit
     console.log('Deposit to vault:', vault.id)
   }
 
   const handleInfo = () => {
     // TODO: Implement vault info modal
+    // 1. Fetch detailed vault information and performance data
+    // 2. Show vault strategy, fees, and risk details
+    // 3. Display historical performance charts
+    // 4. Add links to protocol documentation
     console.log('Show vault info:', vault.id)
   }
 
