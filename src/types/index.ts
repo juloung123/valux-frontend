@@ -37,73 +37,93 @@ export interface VaultPosition {
   lastUpdate: string
 }
 
+// Portfolio Types
+export interface PortfolioPosition {
+  id: string
+  vaultId: string
+  vaultName: string
+  asset: string
+  deposited: string
+  currentValue: string
+  apy: string
+  gainLoss: string
+  gainLossPercentage: string
+  lastUpdated: string
+}
+
 // Transaction Types
 export interface Transaction {
   id: string
-  type: TransactionType
-  vault: string
-  vaultId: string
-  amount: string
+  type: 'deposit' | 'withdraw' | 'yield' | 'fee'
+  vaultName: string
   asset: string
-  date: string
+  amount: string
+  value: string
+  status: 'pending' | 'completed' | 'failed'
+  timestamp: string
   txHash: string
-  status: 'pending' | 'confirmed' | 'failed'
-  gasUsed?: string
-  gasFee?: string
+  gasUsed: string
+  gasFee: string
+}
+
+// Vault Filters Type
+export interface VaultFilters {
+  search: string
+  risk: string
+  category: string
+  minAPY: string
 }
 
 // Rule Engine Types
 export interface Distribution {
-  id: string
   address: string
   percentage: number
   label: string
-  type: DistributionType
-  isActive: boolean
 }
 
-export interface Rule {
+export interface AutomationRule {
   id: string
   name: string
-  description?: string
-  vaultId: string
-  vault: string
-  trigger: TriggerFrequency
-  status: RuleStatus
+  status: 'active' | 'paused'
+  trigger: string
+  lastExecution: string | null
+  nextExecution: string | null
+  totalDistributed: string
+  description: string
+  conditions: {
+    minProfit: string
+    frequency: string
+    vaultIds: string[]
+  }
   distributions: Distribution[]
-  createdAt: string
-  lastExecuted?: string
-  nextExecution: string
-  totalDistributed?: string
-  executionCount?: number
-  minProfitThreshold?: string
 }
 
 // Analytics Types
-export interface ProtocolData {
+export interface ProtocolDistribution {
   name: string
-  tvl: string
-  percentage: number
-  apy: string
+  value: number
   color: string
 }
 
 export interface VaultPerformance {
+  vaultId: string
   name: string
   apy: string
   tvl: string
-  volume24h: string
-  change: string
-  changeType: 'positive' | 'negative'
+  users: number
+  monthlyReturn: string
+  riskScore: number
 }
 
 export interface PlatformMetrics {
-  totalTVL: string
-  activeUsers: number
-  activeRules: number
-  volume24h: string
-  totalRevenue?: string
-  avgAPY: string
+  totalValueLocked: string
+  totalUsers: string
+  totalVaults: string
+  totalTransactions: string
+  averageAPY: string
+  monthlyGrowth: string
+  totalYieldGenerated: string
+  activeAutomations: string
 }
 
 // User Types

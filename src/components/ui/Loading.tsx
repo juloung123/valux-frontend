@@ -136,3 +136,6 @@ export const SkeletonTable = ({
     ))}
   </div>
 )
+
+// Simple Loading component alias for LoadingSpinner
+export const Loading = LoadingSpinner

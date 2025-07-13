@@ -68,19 +68,20 @@ export default function RulesPage() {
     <div className="bg-gray-50 min-h-screen py-12">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900">Profit Distribution Rules</h1>
-            <p className="mt-2 text-lg text-gray-600">Automate your DeFi profit distribution</p>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900">Profit Distribution Rules</h1>
+            <p className="mt-2 text-base sm:text-lg text-gray-600">Automate your DeFi profit distribution</p>
           </div>
-          <button className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all">
+          <button className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 sm:px-6 py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all flex-shrink-0">
             <Plus className="h-5 w-5" />
-            <span>Create Rule</span>
+            <span className="hidden sm:inline">Create Rule</span>
+            <span className="sm:hidden">New</span>
           </button>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 mb-8">
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-3 mb-6 sm:mb-8">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -119,33 +120,35 @@ export default function RulesPage() {
         </div>
 
         {/* Rules List */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {rules.map((rule) => (
             <div key={rule.id} className="bg-white rounded-xl shadow-sm border border-gray-200">
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center space-x-4">
-                    <div className={`w-3 h-3 rounded-full ${rule.status === 'active' ? 'bg-green-500' : 'bg-gray-400'}`}></div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">{rule.name}</h3>
-                      <p className="text-sm text-gray-500">{rule.vault} • {rule.trigger} execution</p>
+              <div className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
+                  <div className="flex items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
+                    <div className={`w-3 h-3 rounded-full flex-shrink-0 ${rule.status === 'active' ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">{rule.name}</h3>
+                      <p className="text-xs sm:text-sm text-gray-500 truncate">{rule.vault} • {rule.trigger} execution</p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  <div className="flex items-center justify-between sm:justify-end gap-2 flex-shrink-0">
+                    <span className={`inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       rule.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                     }`}>
                       {rule.status === 'active' ? 'Active' : 'Paused'}
                     </span>
-                    <button className="p-2 text-gray-400 hover:text-gray-600">
-                      {rule.status === 'active' ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                    </button>
-                    <button className="p-2 text-gray-400 hover:text-gray-600">
-                      <Edit3 className="h-4 w-4" />
-                    </button>
-                    <button className="p-2 text-gray-400 hover:text-red-600">
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                    <div className="flex items-center space-x-1">
+                      <button className="p-1.5 sm:p-2 text-gray-400 hover:text-gray-600 flex-shrink-0">
+                        {rule.status === 'active' ? <Pause className="h-3 w-3 sm:h-4 sm:w-4" /> : <Play className="h-3 w-3 sm:h-4 sm:w-4" />}
+                      </button>
+                      <button className="p-1.5 sm:p-2 text-gray-400 hover:text-gray-600 flex-shrink-0">
+                        <Edit3 className="h-3 w-3 sm:h-4 sm:w-4" />
+                      </button>
+                      <button className="p-1.5 sm:p-2 text-gray-400 hover:text-red-600 flex-shrink-0">
+                        <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -181,15 +184,15 @@ export default function RulesPage() {
                 </div>
 
                 {/* Execution Info */}
-                <div className="flex items-center justify-between text-sm text-gray-500 pt-4 border-t border-gray-200">
-                  <div className="flex items-center space-x-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500 pt-4 border-t border-gray-200">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
                     {rule.lastExecuted && (
-                      <span>Last executed: {new Date(rule.lastExecuted).toLocaleDateString()}</span>
+                      <span>Last: {new Date(rule.lastExecuted).toLocaleDateString()}</span>
                     )}
-                    <span>Next execution: {new Date(rule.nextExecution).toLocaleDateString()}</span>
+                    <span>Next: {new Date(rule.nextExecution).toLocaleDateString()}</span>
                   </div>
-                  <div className="flex items-center space-x-1">
-                    <Clock className="h-4 w-4" />
+                  <div className="flex items-center space-x-1 self-start sm:self-auto">
+                    <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
                     <span className="capitalize">{rule.trigger}</span>
                   </div>
                 </div>

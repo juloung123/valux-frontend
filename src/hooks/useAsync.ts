@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { type UseAsyncState } from '@/types'
 
 export function useAsync<T = unknown, Args extends unknown[] = unknown[]>(
   asyncFunction: (...args: Args) => Promise<T>
