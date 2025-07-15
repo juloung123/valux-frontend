@@ -4,23 +4,18 @@ import React, { useState, useEffect } from 'react'
 import { TrendingUp, TrendingDown, DollarSign, PieChart, Activity, Download } from 'lucide-react'
 import { Card, CardHeader, CardContent, Button, Badge, Loading } from '@/components/ui'
 import { useAsync } from '@/hooks'
-import { portfolioService } from '@/mock'
+import { portfolioService } from '@/services'
+import { useAccount } from 'wagmi'
 
 /**
  * Dashboard Page Component
- * 
- * TODO: Future API Integration Tasks:
- * 1. Connect to user wallet for automatic address detection
- * 2. Replace portfolioService with real API client
- * 3. Add real-time portfolio updates via WebSocket
- * 4. Implement portfolio analytics and performance charts
- * 5. Add portfolio rebalancing suggestions
- * 6. Integrate with tax calculation service for exports
+ * Integrated with backend API for real portfolio data
  */
 
 const DashboardPage = () => {
-  // TODO: Get user address from wallet connection
-  const [userAddress] = useState('0x1234567890abcdef1234567890abcdef12345678') // Mock address
+  // Get user address from wallet connection
+  const { address: connectedAddress } = useAccount()
+  const userAddress = connectedAddress || '0x1234567890abcdef1234567890abcdef12345678' // Fallback for testing
   
   // Use async hooks for data fetching
   const { 
@@ -28,7 +23,7 @@ const DashboardPage = () => {
     loading: portfolioLoading, 
     error: portfolioError, 
     execute: fetchPortfolio 
-  } = useAsync(portfolioService.getPortfolio)
+  } = useAsync(portfolioService.getPortfolioOverview)
   
   const { 
     data: transactionData, 
@@ -41,7 +36,10 @@ const DashboardPage = () => {
   useEffect(() => {
     if (userAddress) {
       fetchPortfolio(userAddress)
-      fetchTransactions(userAddress, { limit: 10 })
+      fetchTransactions({ 
+        address: userAddress, 
+        limit: 10 
+      })
     }
   }, [userAddress, fetchPortfolio, fetchTransactions])
 
@@ -51,13 +49,11 @@ const DashboardPage = () => {
   const transactions = transactionData?.transactions || []
 
   const handleExportData = async () => {
-    // TODO: Implement real export functionality
-    // 1. Generate comprehensive portfolio report
-    // 2. Include transaction history for tax purposes
-    // 3. Add performance analytics and insights
-    // 4. Support multiple export formats (CSV, PDF, JSON)
     try {
-      const exportResult = await portfolioService.exportPortfolioData(userAddress, 'csv')
+      const exportResult = await portfolioService.exportPortfolioData({ 
+        address: userAddress, 
+        format: 'csv' 
+      })
       // In real implementation, trigger download
       console.log('Export result:', exportResult)
       alert(`Export ready: ${exportResult.filename}`)

@@ -20,6 +20,7 @@ A production-ready DeFi automation platform built with modern web technologies. 
 - **Styling**: Tailwind CSS with custom design system
 - **Web3**: Wagmi + RainbowKit + Viem
 - **State Management**: React Query (TanStack Query)
+- **Backend Integration**: ✅ **INTEGRATED** - NestJS API (valux-backend on port 8080)
 - **Icons**: Lucide React
 - **Performance**: Dynamic imports, code splitting, memoization
 - **Quality**: ESLint, Prettier, TypeScript strict mode
@@ -53,8 +54,55 @@ NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
 NEXT_PUBLIC_ALCHEMY_ID=your_alchemy_id
 NEXT_PUBLIC_INFURA_ID=your_infura_id
 
-# Optional: API configuration
-NEXT_PUBLIC_API_URL=https://api.valux.finance
+# Backend API integration (Updated July 15, 2025)
+NEXT_PUBLIC_API_URL=http://localhost:8080  # Backend running on port 8080
+NEXT_PUBLIC_USE_REAL_API=true             # Enable real API integration
+
+# Backend Status: 60% Complete - Vault Service Integrated
+# Available APIs: Auth (100%), Vaults (100% - INTEGRATED), System Health (100%)
+# Missing APIs: Portfolio, Rules Engine, Analytics (in development)
+```
+
+## 🔗 Backend Integration Status
+
+### ✅ **Completed Integrations (July 15, 2025)**
+
+- **🏦 Vault Service**: Fully integrated with real API endpoints
+  - List vaults with filtering and pagination
+  - Vault details and performance metrics
+  - Search by name, protocol, risk level, category
+  - Real-time APY and TVL data
+
+- **🔒 Authentication**: Infrastructure ready for Web3 login
+  - JWT token management with refresh
+  - Web3 signature verification ready
+  - Secure HTTP client with error handling
+
+- **🛠 API Client**: Complete integration infrastructure
+  - Automatic response processing
+  - Type-safe API calls with TypeScript
+  - Comprehensive error handling with fallback
+
+### ⚠️ **Pending Integrations**
+
+- **📊 Portfolio Management**: Waiting for backend endpoints
+- **⚙️ Rules Engine**: Waiting for backend endpoints  
+- **📈 Analytics Dashboard**: Waiting for backend endpoints
+
+### 🚀 **Testing Integration**
+
+```bash
+# Start backend server
+cd ../valux-backend
+npm run server:start
+
+# Start frontend development server
+cd ../valux-frontend
+npm run dev
+
+# Test integration
+curl "http://localhost:8080/api/vaults?page=1&limit=5"
+# Visit http://localhost:3000/vaults (should load without errors)
 ```
 
 ## 🏗 Available Scripts
@@ -108,17 +156,17 @@ src/
 │   └── index.ts          # Enhanced type definitions
 ├── providers/            # React providers
 │   └── Web3Provider.tsx  # Web3 integration
-└── mock/                 # Mock data architecture
+└── mock/                 # Mock data architecture (⚠️ Migration to Real API in Progress)
     ├── data/             # Structured mock data
-    │   ├── vaults.ts     # Vault configurations
-    │   ├── portfolio.ts  # Portfolio positions
-    │   ├── rules.ts      # Automation rules
-    │   └── analytics.ts  # Platform metrics
+    │   ├── vaults.ts     # ✅ Ready for API replacement
+    │   ├── portfolio.ts  # 🔄 Backend API 0% complete - Portfolio endpoints missing
+    │   ├── rules.ts      # 🔄 Backend API 0% complete - Rules Engine endpoints missing
+    │   └── analytics.ts  # 🔄 Backend API 0% complete - Analytics endpoints missing
     ├── services/         # API-like mock services
-    │   ├── vaultService.ts
-    │   ├── portfolioService.ts
-    │   ├── rulesService.ts
-    │   └── analyticsService.ts
+    │   ├── vaultService.ts     # ✅ Can replace with real API (GET /api/vaults)
+    │   ├── portfolioService.ts # 🔄 Waiting for backend implementation
+    │   ├── rulesService.ts     # 🔄 Waiting for backend implementation
+    │   └── analyticsService.ts # 🔄 Waiting for backend implementation
     ├── index.ts          # Centralized exports
     └── README.md         # Mock system documentation
 ```
@@ -345,6 +393,12 @@ NODE_ENV=production
 - **Type Safety**: TypeScript strict mode prevents runtime errors
 - **Dependency Scanning**: Regular security audits of dependencies
 
+### Backend Integration Security
+- **JWT Authentication**: Secure token-based authentication with backend
+- **CORS Configuration**: Properly configured cross-origin requests
+- **API Validation**: Input validation on both frontend and backend
+- **Error Handling**: Secure error messages without sensitive data exposure
+
 ## 📊 Analytics & Monitoring
 
 ### Performance Monitoring
@@ -400,11 +454,18 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🗺 Roadmap
 
+### Q4 2024 / Q1 2025 - Backend API Integration (Current Priority)
+- [ ] **Replace Mock Services**: Migrate from mock to real backend APIs
+- [ ] **Portfolio API Integration**: Real-time portfolio tracking and P&L
+- [ ] **Rules Engine API**: Automation rules creation and management
+- [ ] **Analytics API Integration**: Platform metrics and user analytics
+- [ ] **Smart Contract Integration**: Vault deposits/withdrawals via backend
+
 ### Q1 2025
-- [ ] Smart contract integration
 - [ ] Advanced analytics dashboard
 - [ ] Mobile app (React Native)
 - [ ] Multi-language support
+- [ ] Real-time WebSocket updates
 
 ### Q2 2025
 - [ ] Multi-chain support (Ethereum, Polygon)
@@ -422,4 +483,51 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Built with ❤️ by the Valux.finance team**
 
-For detailed development information, see [CLAUDE.md](../CLAUDE.md)
+## 🔗 **Backend Integration Status (Updated July 13, 2025)**
+
+### ✅ **Available Backend APIs** (Ready for Integration)
+```typescript
+// Authentication - 100% Complete
+GET    /api/auth/nonce          # Generate wallet signing nonce
+POST   /api/auth/login          # Web3 signature authentication
+GET    /api/auth/profile        # User profile (protected)
+
+// Vaults - 67% Complete  
+GET    /api/vaults              # List vaults with filtering
+GET    /api/vaults/:id          # Vault details
+GET    /api/vaults/:id/performance # Vault performance data
+
+// System Health - 100% Complete
+GET    /health                  # System health check
+GET    /api/docs                # Swagger documentation
+```
+
+### ❌ **Missing Backend APIs** (Under Development)
+```typescript
+// Portfolio API - 0% Complete (CRITICAL)
+GET    /api/user/:address/portfolio        # Portfolio overview
+GET    /api/user/:address/transactions     # Transaction history
+GET    /api/user/:address/portfolio/export # Tax export
+
+// Rules Engine API - 0% Complete (CRITICAL)
+GET    /api/user/:address/rules            # User rules
+POST   /api/user/:address/rules            # Create rule
+PUT    /api/rules/:id                      # Update rule
+DELETE /api/rules/:id                      # Delete rule
+
+// Analytics API - 0% Complete (CRITICAL)
+GET    /api/analytics/platform             # Platform metrics
+GET    /api/analytics/tvl                  # Total Value Locked
+```
+
+### 🎯 **Migration Timeline**
+- **Week 1-2**: Portfolio and Rules Engine APIs development (backend)
+- **Week 3-4**: Frontend integration and testing
+- **Week 5-6**: Analytics API and real-time features
+
+**Backend Server**: http://localhost:8080 (See [Backend Guide](../valux-backend/CLAUDE.md) for setup)
+
+---
+
+For detailed development information, see [CLAUDE.md](./CLAUDE.md)  
+For backend documentation, see [Backend Guide](../valux-backend/CLAUDE.md)

@@ -5,6 +5,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Web3Provider from "@/providers/Web3Provider";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import ApiIntegrationProvider from "@/components/ApiIntegrationProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -39,11 +40,13 @@ export default function RootLayout({
       <body className={`${inter.variable} font-sans antialiased`}>
         <ErrorBoundary>
           <Web3Provider>
-            <div className="min-h-screen flex flex-col">
-              <Header />
-              <main className="flex-1">{children}</main>
-              <Footer />
-            </div>
+            <ApiIntegrationProvider>
+              <div className="min-h-screen flex flex-col">
+                <Header />
+                <main className="flex-1">{children}</main>
+                <Footer />
+              </div>
+            </ApiIntegrationProvider>
           </Web3Provider>
         </ErrorBoundary>
       </body>

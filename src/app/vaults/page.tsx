@@ -6,7 +6,7 @@ import { RISK_LEVELS } from '@/lib/constants'
 import { type Vault, type RiskLevel, type VaultFilters } from '@/types'
 import { Card, CardHeader, CardContent, CardFooter, Button, Badge, Input, Loading } from '@/components/ui'
 import { useDebounce, useAsync } from '@/hooks'
-import { vaultService } from '@/mock'
+import { vaultService } from '@/services'
 
 /**
  * Vaults Page Component
