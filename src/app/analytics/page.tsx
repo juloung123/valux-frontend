@@ -1,24 +1,79 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { BarChart3, PieChart, Activity, DollarSign, Users, Target, Zap } from 'lucide-react'
+import { PublicPage } from '@/components/auth/AuthGuard'
+import { analyticsService } from '@/services'
+import { Loading } from '@/components/ui'
 
-export default function AnalyticsPage() {
+function AnalyticsContent() {
   const [timeRange, setTimeRange] = useState('30d')
+  const [analytics, setAnalytics] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const protocolData = [
-    { name: 'Aave', tvl: '$2.4M', percentage: 40, apy: '4.2%' },
-    { name: 'Compound', tvl: '$1.8M', percentage: 30, apy: '3.1%' },
-    { name: 'Lido', tvl: '$1.2M', percentage: 20, apy: '3.8%' },
-    { name: 'Curve', tvl: '$0.6M', percentage: 10, apy: '8.5%' }
-  ]
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const data = await analyticsService.getPlatformMetrics()
+        setAnalytics(data)
+      } catch (err) {
+        console.error('Failed to fetch analytics:', err)
+        setError('Failed to load analytics data')
+      } finally {
+        setLoading(false)
+      }
+    }
 
-  const vaultPerformance = [
-    { name: 'USDC Savings', apy: '4.2%', tvl: '$2.4M', volume24h: '$125K', change: '+0.3%' },
-    { name: 'ETH Staking', apy: '3.8%', tvl: '$1.2M', volume24h: '$89K', change: '+0.1%' },
-    { name: 'BTC Yield', apy: '2.1%', tvl: '$1.8M', volume24h: '$67K', change: '+0.2%' },
-    { name: 'High Yield DeFi', apy: '12.5%', tvl: '$0.6M', volume24h: '$234K', change: '+2.1%' }
-  ]
+    fetchAnalytics()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="bg-gray-50 min-h-screen py-12">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <Loading />
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !analytics) {
+    return (
+      <div className="bg-gray-50 min-h-screen py-12">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="text-center">
+            <p className="text-red-600">{error || 'Failed to load analytics'}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Transform backend data for display
+  const protocolData = Object.entries(analytics.protocols || {}).map(([name, data]: [string, any]) => ({
+    name: name.charAt(0).toUpperCase() + name.slice(1),
+    tvl: `$${(parseFloat(data.tvl) / 1000000).toFixed(1)}M`,
+    percentage: Math.round(data.percentage),
+    apy: `${data.apy || '0.0'}%`
+  }))
+
+  // Transform protocol data to vault performance display
+  const vaultPerformance = Object.entries(analytics.protocols || {}).map(([name, data]: [string, any]) => ({
+    name: name.charAt(0).toUpperCase() + name.slice(1) + ' Vault',
+    apy: `${data.apy || '0.0'}%`,
+    tvl: `$${(parseFloat(data.tvl) / 1000000).toFixed(1)}M`,
+    volume24h: `$${Math.floor(Math.random() * 300 + 50)}K`, // Mock volume until endpoint ready
+    change: `+${(Math.random() * 2).toFixed(1)}%` // Mock change until endpoint ready
+  }))
 
   return (
     <div className="bg-gray-50 min-h-screen py-12">
@@ -50,8 +105,8 @@ export default function AnalyticsPage() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Total TVL</p>
-                <p className="text-2xl font-bold text-gray-900">$6.0M</p>
-                <p className="text-sm text-green-600">+12.5% from last month</p>
+                <p className="text-2xl font-bold text-gray-900">${(parseFloat(analytics.tvl.current) / 1000000).toFixed(1)}M</p>
+                <p className="text-sm text-green-600">+{analytics.tvl.changePercentage.toFixed(1)}% from last month</p>
               </div>
             </div>
           </div>
@@ -63,8 +118,8 @@ export default function AnalyticsPage() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Active Users</p>
-                <p className="text-2xl font-bold text-gray-900">1,247</p>
-                <p className="text-sm text-blue-600">+8.3% from last month</p>
+                <p className="text-2xl font-bold text-gray-900">{analytics.users.total.toLocaleString()}</p>
+                <p className="text-sm text-blue-600">+{analytics.users.growth}% from last month</p>
               </div>
             </div>
           </div>
@@ -76,8 +131,8 @@ export default function AnalyticsPage() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Active Rules</p>
-                <p className="text-2xl font-bold text-gray-900">3,492</p>
-                <p className="text-sm text-purple-600">+15.2% from last month</p>
+                <p className="text-2xl font-bold text-gray-900">{analytics.rules.activeRules.toLocaleString()}</p>
+                <p className="text-sm text-purple-600">Total: {analytics.rules.totalRules}</p>
               </div>
             </div>
           </div>
@@ -89,8 +144,8 @@ export default function AnalyticsPage() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">24h Volume</p>
-                <p className="text-2xl font-bold text-gray-900">$515K</p>
-                <p className="text-sm text-orange-600">+5.7% from yesterday</p>
+                <p className="text-2xl font-bold text-gray-900">${parseFloat(analytics.transactions.volume24h) > 0 ? (parseFloat(analytics.transactions.volume24h) / 1000).toFixed(0) + 'K' : '0'}</p>
+                <p className="text-sm text-orange-600">Transactions: {analytics.transactions.total}</p>
               </div>
             </div>
           </div>
@@ -127,6 +182,9 @@ export default function AnalyticsPage() {
               </div>
               <div className="mt-6 bg-gray-200 rounded-full h-2">
                 <div className="bg-gradient-to-r from-blue-500 via-green-500 via-purple-500 to-orange-500 h-2 rounded-full" style={{width: '100%'}}></div>
+              </div>
+              <div className="mt-4 text-sm text-gray-600">
+                <p>Last updated: {new Date(analytics.lastUpdated).toLocaleString()}</p>
               </div>
             </div>
           </div>
@@ -210,15 +268,15 @@ export default function AnalyticsPage() {
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-gray-600">Performance Fees (0.5%)</span>
-                <span className="font-semibold">$2,580</span>
+                <span className="font-semibold">$${(parseFloat(analytics.totalYieldGenerated || '0') * 0.005).toFixed(0)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Gas Optimization Savings</span>
-                <span className="font-semibold">$890</span>
+                <span className="text-gray-600">Total Fees Generated</span>
+                <span className="font-semibold">$${parseFloat(analytics.transactions.volume24h || '0').toFixed(0)}</span>
               </div>
               <div className="flex justify-between font-semibold text-lg pt-3 border-t">
-                <span>Total Monthly Revenue</span>
-                <span>$3,470</span>
+                <span>Total Yield Generated</span>
+                <span>$${(parseFloat(analytics.totalYieldGenerated || '0') / 1000).toFixed(1)}K</span>
               </div>
             </div>
           </div>
@@ -227,21 +285,29 @@ export default function AnalyticsPage() {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Growth Metrics</h3>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-gray-600">New Users (30d)</span>
-                <span className="font-semibold text-green-600">+156</span>
+                <span className="text-gray-600">Total Users</span>
+                <span className="font-semibold text-green-600">+{analytics.users.total}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Vault Deposits (30d)</span>
-                <span className="font-semibold text-green-600">+$1.2M</span>
+                <span className="text-gray-600">User Growth</span>
+                <span className="font-semibold text-green-600">+{analytics.users.growth}%</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Rules Created (30d)</span>
-                <span className="font-semibold text-green-600">+248</span>
+                <span className="text-gray-600">Active Rules</span>
+                <span className="font-semibold text-green-600">+{analytics.rules.activeRules}</span>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+  )
+}
+
+export default function AnalyticsPage() {
+  return (
+    <PublicPage>
+      <AnalyticsContent />
+    </PublicPage>
   )
 }

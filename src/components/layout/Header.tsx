@@ -3,9 +3,9 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Menu, X } from 'lucide-react'
-import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { NAVIGATION_ITEMS, APP_CONFIG, UI } from '@/lib/constants'
 import { Button } from '@/components/ui'
+import AuthButton from '@/components/auth/AuthButton'
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -69,17 +69,7 @@ const Header = () => {
           
           {/* Desktop connect button */}
           <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-            <ConnectButton 
-              chainStatus="icon"
-              accountStatus={{
-                smallScreen: 'avatar',
-                largeScreen: 'full',
-              }}
-              showBalance={{
-                smallScreen: false,
-                largeScreen: true,
-              }}
-            />
+            <AuthButton />
           </div>
         </nav>
       </header>
@@ -150,11 +140,7 @@ const Header = () => {
                 {/* Connect wallet button */}
                 <div className="py-6">
                   <div className="flex justify-center">
-                    <ConnectButton 
-                      chainStatus="icon"
-                      accountStatus="full"
-                      showBalance={false}
-                    />
+                    <AuthButton />
                   </div>
                 </div>
               </div>

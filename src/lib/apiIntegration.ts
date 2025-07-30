@@ -22,7 +22,8 @@ let integrationStatus: IntegrationStatus | null = null
 export async function checkBackendAvailability(): Promise<boolean> {
   try {
     const response = await healthCheck()
-    return response?.status === 'ok'
+    const isHealthy = response && typeof response === 'object' && 'status' in response && (response as any).status === 'ok'
+    return Boolean(isHealthy)
   } catch (error) {
     console.warn('Backend API check failed:', error)
     return false

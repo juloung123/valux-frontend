@@ -112,38 +112,47 @@ export interface PortfolioOverviewDto {
 
 export interface PortfolioPositionDto {
   id: string
-  vaultId: string
+  vault: {
+    id: string
+    name: string
+    protocol: string
+    tokenSymbol: string
+    riskLevel: 'low' | 'medium' | 'high'
+    category: 'stable' | 'yield' | 'growth'
+    currentAPY: number
+  }
+  depositAmount: string
+  currentValue: string
+  unrealizedPnl: string
+  realizedPnl: string
+  totalDistributed: string
+  avgAPY: number
+  firstDepositAt: string
+  lastUpdated: string
+  activeRules: number
+  performancePercentage: number
+}
+
+export interface TransactionDto {
+  id: string
+  hash: string
+  type: 'deposit' | 'withdrawal' | 'distribution' | 'reinvest'
+  amount: string
+  tokenSymbol: string
+  status: 'pending' | 'confirmed' | 'failed'
+  blockNumber: number
+  gasUsed: string
+  gasFee: string
+  fromAddress: string
+  toAddress: string
   vault: {
     id: string
     name: string
     protocol: string
     tokenSymbol: string
   }
-  depositAmount: string
-  currentValue: string
-  unrealizedPnl: string
-  realizedPnl: string
-  lastUpdated: string
-}
-
-export interface TransactionDto {
-  id: string
-  userId: string
-  vaultId?: string
-  type: 'deposit' | 'withdraw' | 'distribution' | 'automation'
-  amount: string
-  tokenSymbol: string
-  transactionHash: string
-  blockNumber: number
-  gasUsed: string
-  gasPriceGwei: string
-  status: 'pending' | 'confirmed' | 'failed'
-  timestamp: string
-  vault?: {
-    id: string
-    name: string
-    protocol: string
-  }
+  executedAt: string
+  confirmedAt: string
 }
 
 export interface TransactionQueryDto {
@@ -163,8 +172,7 @@ export interface TransactionListResponseDto {
   page: number
   limit: number
   totalPages: number
-  hasNext: boolean
-  hasPrev: boolean
+  hasMore: boolean
 }
 
 export interface PortfolioExportQueryDto {
@@ -177,10 +185,17 @@ export interface PortfolioExportQueryDto {
 }
 
 export interface PortfolioExportResponseDto {
-  format: 'csv' | 'json' | 'pdf'
-  data: string | object
-  filename: string
-  generatedAt: string
+  data?: any
+  downloadUrl?: string
+  metadata: {
+    format: 'csv' | 'json' | 'pdf'
+    generatedAt: string
+    totalRecords: number
+    dateRange: {
+      start: string
+      end: string
+    }
+  }
 }
 
 // Rules Types (Backend DTOs)

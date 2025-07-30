@@ -64,27 +64,11 @@ export function clearAuth(): void {
   console.log('🔓 Authentication cleared')
 }
 
-/**
- * Development authentication helper
- * Automatically authenticates with a test address for development
- */
-export async function devAuthenticate(): Promise<boolean> {
-  const testAddress = '0x1234567890abcdef1234567890abcdef12345678'
-  
-  if (process.env.NODE_ENV !== 'development') {
-    console.warn('⚠️ Dev authentication only available in development mode')
-    return false
-  }
-  
-  console.log('🧪 Running development authentication...')
-  return await mockAuthentication(testAddress)
-}
 
 // Expose to window for development
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
   ;(window as any).valuxAuth = {
     mockAuth: mockAuthentication,
-    devAuth: devAuthenticate,
     isAuth: isAuthenticated,
     status: getAuthStatus,
     clear: clearAuth,

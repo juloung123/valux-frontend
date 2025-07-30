@@ -29,6 +29,13 @@ export class RulesService {
   }
 
   /**
+   * Get rules for user (alias for getUserRules)
+   */
+  async getRulesForUser(address: string): Promise<AutomationRule[]> {
+    return this.getUserRules(address)
+  }
+
+  /**
    * Get user's automation rules
    */
   async getUserRules(

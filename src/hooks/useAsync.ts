@@ -8,9 +8,16 @@ export function useAsync<T = unknown, Args extends unknown[] = unknown[]>(
   const [data, setData] = useState<T | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [shouldStop, setShouldStop] = useState(false)
 
   const execute = useCallback(
     async (...args: Args) => {
+      // Don't execute if we should stop (e.g., due to auth errors)
+      if (shouldStop) {
+        console.log('⏹️ useAsync execution stopped due to authentication error')
+        return
+      }
+
       try {
         setLoading(true)
         setError(null)
@@ -20,17 +27,24 @@ export function useAsync<T = unknown, Args extends unknown[] = unknown[]>(
         const errorMessage = err instanceof Error ? err.message : 'An error occurred'
         setError(errorMessage)
         console.error('Async operation failed:', err)
+        
+        // Stop further executions if this is an authentication error
+        if (err instanceof Error && err.message.includes('Authentication failed')) {
+          console.log('🛑 Stopping useAsync due to authentication error')
+          setShouldStop(true)
+        }
       } finally {
         setLoading(false)
       }
     },
-    [asyncFunction]
+    [asyncFunction, shouldStop]
   )
 
   const reset = useCallback(() => {
     setData(null)
     setLoading(false)
     setError(null)
+    setShouldStop(false)
   }, [])
 
   return {
@@ -39,5 +53,6 @@ export function useAsync<T = unknown, Args extends unknown[] = unknown[]>(
     error,
     execute,
     reset,
+    shouldStop,
   }
 }

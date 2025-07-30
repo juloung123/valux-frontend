@@ -29,10 +29,10 @@ export class VaultService {
     if (backendFilters.search) params.search = backendFilters.search
     if (backendFilters.riskLevel) params.riskLevel = backendFilters.riskLevel
     if (backendFilters.category) params.category = backendFilters.category
-    if (backendFilters.minAPY) params.minAPY = backendFilters.minAPY.toString()
-    if (backendFilters.maxAPY) params.maxAPY = backendFilters.maxAPY.toString()
-    if (backendFilters.page) params.page = backendFilters.page.toString()
-    if (backendFilters.limit) params.limit = backendFilters.limit.toString()
+    if (backendFilters.minAPY !== undefined) params.minAPY = backendFilters.minAPY.toString()
+    if (backendFilters.maxAPY !== undefined) params.maxAPY = backendFilters.maxAPY.toString()
+    if (backendFilters.page !== undefined) params.page = backendFilters.page.toString()
+    if (backendFilters.limit !== undefined) params.limit = backendFilters.limit.toString()
     
     // API client unwraps the response.data, so we get the direct data object
     const response = await apiClient.get<{ vaults: VaultDto[]; total: number; page: number; limit: number; totalPages: number }>('/vaults', params)
@@ -56,10 +56,10 @@ export class VaultService {
     if (backendFilters.search) params.search = backendFilters.search
     if (backendFilters.riskLevel) params.riskLevel = backendFilters.riskLevel
     if (backendFilters.category) params.category = backendFilters.category
-    if (backendFilters.minAPY) params.minAPY = backendFilters.minAPY.toString()
-    if (backendFilters.maxAPY) params.maxAPY = backendFilters.maxAPY.toString()
-    if (backendFilters.page) params.page = backendFilters.page.toString()
-    if (backendFilters.limit) params.limit = backendFilters.limit.toString()
+    if (backendFilters.minAPY !== undefined) params.minAPY = backendFilters.minAPY.toString()
+    if (backendFilters.maxAPY !== undefined) params.maxAPY = backendFilters.maxAPY.toString()
+    if (backendFilters.page !== undefined) params.page = backendFilters.page.toString()
+    if (backendFilters.limit !== undefined) params.limit = backendFilters.limit.toString()
     
     // API client unwraps the response.data, so we get the direct data object
     const response = await apiClient.get<{ vaults: VaultDto[]; total: number; page: number; limit: number; totalPages: number }>('/vaults', params)

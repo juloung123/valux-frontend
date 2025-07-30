@@ -64,7 +64,7 @@ class TokenManager {
   setTokens(accessToken: string, refreshToken: string): void {
     this.accessToken = accessToken
     this.refreshToken = refreshToken
-    
+
     if (typeof window !== 'undefined') {
       localStorage.setItem('valux_access_token', accessToken)
       localStorage.setItem('valux_refresh_token', refreshToken)
@@ -82,7 +82,7 @@ class TokenManager {
   clearTokens(): void {
     this.accessToken = null
     this.refreshToken = null
-    
+
     if (typeof window !== 'undefined') {
       localStorage.removeItem('valux_access_token')
       localStorage.removeItem('valux_refresh_token')
@@ -94,10 +94,12 @@ class TokenManager {
 export class ApiClient {
   private axiosInstance: AxiosInstance
   private tokenManager: TokenManager
+  private isRedirecting = false
+  private abortController = new AbortController()
 
   constructor() {
     this.tokenManager = TokenManager.getInstance()
-    
+
     // Create axios instance with default config
     this.axiosInstance = axios.create({
       baseURL: `${API_BASE_URL}/${API_PREFIX}`,
@@ -111,8 +113,13 @@ export class ApiClient {
     this.axiosInstance.interceptors.request.use(
       (config) => {
         const accessToken = this.tokenManager.getAccessToken()
+        console.log('🔑 Request interceptor - token exists:', !!accessToken)
+        console.log('🌐 Request URL:', config.url)
         if (accessToken) {
           config.headers.Authorization = `Bearer ${accessToken}`
+          console.log('✅ Added Authorization header')
+        } else {
+          console.log('❌ No access token available')
         }
         return config
       },
@@ -128,19 +135,27 @@ export class ApiClient {
       async (error) => {
         const originalRequest = error.config
 
-        // Handle 401 errors with token refresh
+        // Handle 401 errors - immediate redirect (no refresh for now)
         if (error.response?.status === 401 && !originalRequest._retry) {
+          console.log('🚨 Got 401 error - redirecting immediately to prevent loops')
           originalRequest._retry = true
+
+          // Skip token refresh and go straight to redirect
+          console.log('❌ Authentication failed, clearing tokens and redirecting NOW')
+          this.tokenManager.clearTokens()
           
-          const refreshed = await this.refreshAccessToken()
-          if (refreshed) {
-            const newToken = this.tokenManager.getAccessToken()
-            originalRequest.headers.Authorization = `Bearer ${newToken}`
-            return this.axiosInstance(originalRequest)
+          // Immediate redirect to prevent any further API calls
+          if (typeof window !== 'undefined' && !this.isRedirecting) {
+            this.isRedirecting = true
+            // Abort all pending requests
+            this.abortController.abort()
+            this.abortController = new AbortController()
+            // Immediate redirect - no timeout
+            window.location.replace('/')
+            // Also stop all pending requests
+            return Promise.reject(new Error('Redirecting due to authentication failure'))
           }
           
-          // If refresh failed, clear tokens and throw auth error
-          this.tokenManager.clearTokens()
           throw new AuthenticationError('Authentication failed. Please login again.')
         }
 
@@ -155,11 +170,11 @@ export class ApiClient {
    */
   private handleResponse<T>(response: AxiosResponse): T {
     const { data } = response
-    
+
     // Handle backend API response format
     if (data && typeof data === 'object' && 'success' in data) {
       const apiResponse = data as ApiResponse<T>
-      
+
       if (!apiResponse.success) {
         throw new ApiError(
           apiResponse.error || 'API request failed',
@@ -168,10 +183,17 @@ export class ApiClient {
           apiResponse
         )
       }
+
+      // Handle double-nested data structure from backend
+      const responseData = apiResponse.data as any
       
+      if (responseData && typeof responseData === 'object' && 'success' in responseData && 'data' in responseData) {
+        return responseData.data as T
+      }
+
       return apiResponse.data as T
     }
-    
+
     return data as T
   }
 
@@ -210,22 +232,28 @@ export class ApiClient {
    */
   private async refreshAccessToken(): Promise<boolean> {
     const refreshToken = this.tokenManager.getRefreshToken()
+    console.log('🔄 Refresh token exists:', !!refreshToken)
+    
     if (!refreshToken) {
+      console.log('❌ No refresh token available')
       return false
     }
 
     try {
+      console.log('🔄 Attempting token refresh...')
       const response = await axios.post(`${API_BASE_URL}/${API_PREFIX}/auth/refresh`, {
         refresh_token: refreshToken,
       })
 
+      console.log('🔄 Refresh response status:', response.status)
       if (response.status === 200) {
         const { access_token } = response.data
+        console.log('✅ Got new access token:', !!access_token)
         this.tokenManager.setTokens(access_token, refreshToken)
         return true
       }
     } catch (error) {
-      console.error('Token refresh failed:', error)
+      console.error('❌ Token refresh failed:', error)
     }
 
     return false

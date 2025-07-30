@@ -5,6 +5,7 @@ import { WagmiProvider, http } from 'wagmi'
 import { arbitrum, arbitrumSepolia } from 'wagmi/chains'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { getDefaultConfig, RainbowKitProvider } from '@rainbow-me/rainbowkit'
+import { AuthProvider } from '@/contexts/AuthContext'
 import '@rainbow-me/rainbowkit/styles.css'
 
 // Error handling for extension conflicts
@@ -26,7 +27,7 @@ const suppressExtensionErrors = () => {
 
 const config = getDefaultConfig({
   appName: 'Valux.finance',
-  projectId: 'YOUR_PROJECT_ID', // You would replace this with actual WalletConnect project ID
+  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'default_project_id',
   chains: [arbitrum, arbitrumSepolia],
   transports: {
     [arbitrum.id]: http(),
@@ -85,7 +86,9 @@ export default function Web3Provider({ children }: Web3ProviderProps) {
           initialChain={arbitrum}
           showRecentTransactions={true}
         >
-          {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

@@ -30,7 +30,7 @@ export const authService = realAuthService // Auth service is always real (no mo
 export const vaultService = USE_REAL_API ? realVaultService : mockVaultService
 export const portfolioService = USE_REAL_API ? realPortfolioService : mockPortfolioService
 export const rulesService = USE_REAL_API ? realRulesService : mockRulesService
-export const analyticsService = USE_REAL_API ? realAnalyticsService : mockAnalyticsService
+export const analyticsService = realAnalyticsService // Always use real API (backend is ready!)
 
 // Health check utility
 export const healthCheck = async () => {
@@ -80,7 +80,7 @@ export const debugServices = () => {
       vaults: USE_REAL_API ? 'real-api' : 'mock',
       portfolio: USE_REAL_API ? 'real-api' : 'mock',
       rules: USE_REAL_API ? 'real-api' : 'mock',
-      analytics: USE_REAL_API ? 'real-api' : 'mock',
+      analytics: 'real-api', // Always use real API (backend ready!)
     }
   })
 }

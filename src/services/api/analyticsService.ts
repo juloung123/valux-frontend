@@ -28,6 +28,13 @@ export class AnalyticsService {
   }
 
   /**
+   * Alias for getPlatformAnalytics for backward compatibility
+   */
+  async getPlatformMetrics(): Promise<PlatformMetrics> {
+    return this.getPlatformAnalytics()
+  }
+
+  /**
    * Get TVL metrics with timeframe
    */
   async getTvlMetrics(timeframe?: '24h' | '7d' | '30d' | '1y') {
@@ -188,9 +195,9 @@ export class AnalyticsService {
    * Get recent platform activity
    */
   async getRecentActivity() {
-    const analytics = await this.getPlatformAnalytics()
+    const dto = await apiClient.get<PlatformAnalyticsDto>('/analytics/platform')
     
-    return analytics.recentActivity || []
+    return dto.recentActivity || []
   }
 
   /**

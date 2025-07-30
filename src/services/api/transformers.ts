@@ -78,14 +78,14 @@ export function transformPortfolioPosition(dto: PortfolioPositionDto): Portfolio
 
   return {
     id: dto.id,
-    vaultId: dto.vaultId,
+    vaultId: dto.vault.id,
     vaultName: dto.vault.name,
     asset: dto.vault.tokenSymbol,
     deposited: dto.depositAmount,
     currentValue: dto.currentValue,
-    apy: 'N/A', // Not provided in backend DTO
+    apy: `${dto.avgAPY.toFixed(2)}%`,
     gainLoss: pnl >= 0 ? `+${pnl.toFixed(2)}` : pnl.toFixed(2),
-    gainLossPercentage: pnlPercentage >= 0 ? `+${pnlPercentage.toFixed(2)}%` : `${pnlPercentage.toFixed(2)}%`,
+    gainLossPercentage: dto.performancePercentage >= 0 ? `+${dto.performancePercentage.toFixed(2)}%` : `${dto.performancePercentage.toFixed(2)}%`,
     lastUpdated: dto.lastUpdated,
   }
 }
@@ -97,15 +97,15 @@ export function transformTransaction(dto: TransactionDto): Transaction {
   return {
     id: dto.id,
     type: transformTransactionType(dto.type),
-    vaultName: dto.vault?.name || 'N/A',
+    vaultName: dto.vault.name,
     asset: dto.tokenSymbol,
     amount: dto.amount,
     value: dto.amount, // Backend doesn't separate amount and value
-    status: dto.status,
-    timestamp: dto.timestamp,
-    txHash: dto.transactionHash,
+    status: dto.status === 'confirmed' ? 'completed' as const : dto.status as 'pending' | 'failed',
+    timestamp: dto.executedAt,
+    txHash: dto.hash,
     gasUsed: dto.gasUsed,
-    gasFee: dto.gasPriceGwei,
+    gasFee: dto.gasFee,
   }
 }
 
@@ -139,15 +139,48 @@ export function transformRule(dto: RuleDto): AutomationRule {
  * Transform backend PlatformAnalyticsDto to frontend PlatformMetrics
  */
 export function transformPlatformAnalytics(dto: PlatformAnalyticsDto): PlatformMetrics {
+  // Handle nested backend response format
+  const data = dto.data || dto
+  
+  // Transform protocols object to expected format
+  const protocolsObj: Record<string, any> = {}
+  if (data.protocols) {
+    Object.entries(data.protocols).forEach(([name, info]: [string, any]) => {
+      protocolsObj[name] = {
+        tvl: info.tvl,
+        percentage: info.percentage,
+        apy: info.apy || '0.0'
+      }
+    })
+  }
+
   return {
-    totalValueLocked: dto.totalTvl,
-    totalUsers: dto.totalUsers.toString(),
-    totalVaults: dto.totalVaults.toString(),
-    totalTransactions: dto.totalTransactions.toString(),
-    averageAPY: `${dto.avgAPY.toFixed(2)}%`,
-    monthlyGrowth: 'N/A', // Not provided in backend DTO
-    totalYieldGenerated: 'N/A', // Not provided in backend DTO
-    activeAutomations: 'N/A', // Not provided in backend DTO
+    totalValueLocked: data.tvl?.current || '0',
+    totalUsers: data.users?.total?.toString() || '0',
+    totalVaults: '6', // Static for now
+    totalTransactions: data.transactions?.total?.toString() || '0',
+    averageAPY: `${data.yields?.averageAPY?.toFixed(2) || '0'}%`,
+    monthlyGrowth: data.users?.growth ? `${data.users.growth}%` : '0%',
+    totalYieldGenerated: data.yields?.totalDistributed || '0',
+    activeAutomations: data.rules?.activeRules?.toString() || '0',
+    protocols: protocolsObj,
+    tvl: {
+      current: data.tvl?.current || '0',
+      changePercentage: data.tvl?.changePercentage || 0
+    },
+    users: {
+      total: data.users?.total || 0,
+      growth: data.users?.growth || 0
+    },
+    transactions: {
+      total: data.transactions?.total || 0,
+      volume24h: data.transactions?.volume24h || '0'
+    },
+    rules: {
+      totalRules: data.rules?.totalRules || 0,
+      activeRules: data.rules?.activeRules || 0
+    },
+    lastUpdated: data.lastUpdated || new Date().toISOString(),
   }
 }
 
@@ -240,17 +273,17 @@ function generateVaultFeatures(vaultDto: VaultDto): string[] {
 }
 
 function transformTransactionType(
-  backendType: 'deposit' | 'withdraw' | 'distribution' | 'automation'
+  backendType: 'deposit' | 'withdrawal' | 'distribution' | 'reinvest'
 ): 'deposit' | 'withdraw' | 'yield' | 'fee' {
   switch (backendType) {
     case 'deposit':
       return 'deposit'
-    case 'withdraw':
+    case 'withdrawal':
       return 'withdraw'
     case 'distribution':
       return 'yield'
-    case 'automation':
-      return 'fee'
+    case 'reinvest':
+      return 'yield'
     default:
       return 'deposit'
   }
@@ -290,18 +323,36 @@ function getRiskScore(riskLevel: string): number {
 }
 
 // Reverse transformers (Frontend to Backend)
-export function transformVaultFilters(filters: any) {
-  return {
-    search: filters.search,
-    // Only include riskLevel if it's not "All" or "all"
-    riskLevel: filters.risk && filters.risk.toLowerCase() !== 'all' ? filters.risk.toLowerCase() : undefined,
-    // Only include category if it's not "All" or "all"
-    category: filters.category && filters.category.toLowerCase() !== 'all' ? filters.category.toLowerCase() : undefined,
-    minAPY: filters.minAPY ? parseFloat(filters.minAPY) : undefined,
-    maxAPY: filters.maxAPY ? parseFloat(filters.maxAPY) : undefined,
-    page: filters.page || 1,
-    limit: filters.limit || 20,
+export function transformVaultFilters(filters: any): Record<string, any> {
+  console.log('🔍 Input filters:', filters)
+  const result: Record<string, any> = {}
+  
+  if (filters.search) result.search = filters.search
+  // Only include riskLevel if it's not "All" or "all"
+  if (filters.risk && filters.risk.toLowerCase() !== 'all') {
+    result.riskLevel = filters.risk.toLowerCase()
   }
+  // Only include category if it's not "All" or "all"
+  if (filters.category && filters.category.toLowerCase() !== 'all') {
+    result.category = filters.category.toLowerCase()
+  }
+  if (filters.minAPY !== undefined && filters.minAPY !== null && filters.minAPY !== '') {
+    const minAPY = typeof filters.minAPY === 'number' ? filters.minAPY : parseFloat(filters.minAPY)
+    if (!isNaN(minAPY) && minAPY >= 0) {
+      result.minAPY = minAPY
+    }
+  }
+  if (filters.maxAPY !== undefined && filters.maxAPY !== null && filters.maxAPY !== '') {
+    const maxAPY = typeof filters.maxAPY === 'number' ? filters.maxAPY : parseFloat(filters.maxAPY)
+    if (!isNaN(maxAPY) && maxAPY >= 0) {
+      result.maxAPY = maxAPY
+    }
+  }
+  if (filters.page !== undefined) result.page = filters.page || 1
+  if (filters.limit !== undefined) result.limit = filters.limit || 20
+  
+  console.log('✅ Transformed filters:', result)
+  return result
 }
 
 export function transformCreateRule(rule: any) {

@@ -4,9 +4,11 @@ import React, { useState, useEffect } from 'react'
 import { Search, Filter, TrendingUp, Shield, Info } from 'lucide-react'
 import { RISK_LEVELS } from '@/lib/constants'
 import { type Vault, type RiskLevel, type VaultFilters } from '@/types'
-import { Card, CardHeader, CardContent, CardFooter, Button, Badge, Input, Loading } from '@/components/ui'
+import { Card, CardHeader, CardContent, CardFooter, Button, Badge, Input, Loading, Modal } from '@/components/ui'
+import { PublicPage } from '@/components/auth/AuthGuard'
 import { useDebounce, useAsync } from '@/hooks'
 import { vaultService } from '@/services'
+import VaultOperations from '@/components/vaults/VaultOperations'
 
 /**
  * Vaults Page Component
@@ -26,6 +28,8 @@ const VaultsPage = () => {
     category: 'All',
     minAPY: ''
   })
+  const [selectedVault, setSelectedVault] = useState<Vault | null>(null)
+  const [isOperationsModalOpen, setIsOperationsModalOpen] = useState(false)
 
   // Debounce search input for better performance
   const debouncedSearch = useDebounce(filters.search, 300)
@@ -42,8 +46,9 @@ const VaultsPage = () => {
       category: filters.category,
       minAPY: filters.minAPY
     }
+    console.log('🔄 Fetching vaults with params:', filterParams)
     fetchVaults(filterParams)
-  }, [debouncedSearch, filters.risk, filters.category, filters.minAPY, fetchVaults])
+  }, [debouncedSearch, filters.risk, filters.category, filters.minAPY]) // Remove fetchVaults to prevent infinite loop
 
   // Use fetched vaults or empty array as fallback
   const displayVaults = vaults || []
@@ -59,6 +64,21 @@ const VaultsPage = () => {
       category: 'All',
       minAPY: ''
     })
+  }
+
+  const openVaultOperations = (vault: Vault) => {
+    setSelectedVault(vault)
+    setIsOperationsModalOpen(true)
+  }
+
+  const closeVaultOperations = () => {
+    setSelectedVault(null)
+    setIsOperationsModalOpen(false)
+  }
+
+  const handleTransactionSuccess = () => {
+    // Refresh vaults data after successful transaction
+    fetchVaults(filters)
   }
 
   return (
@@ -168,7 +188,7 @@ const VaultsPage = () => {
         {!loading && !error && displayVaults.length > 0 ? (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {displayVaults.map((vault) => (
-              <VaultCard key={vault.id} vault={vault} />
+              <VaultCard key={vault.id} vault={vault} onDeposit={() => openVaultOperations(vault)} />
             ))}
           </div>
         ) : !loading && !error ? (
@@ -215,6 +235,21 @@ const VaultsPage = () => {
             </div>
           </div>
         </Card>
+
+        {/* Vault Operations Modal */}
+        {selectedVault && (
+          <Modal
+            isOpen={isOperationsModalOpen}
+            onClose={closeVaultOperations}
+            title={`${selectedVault.name} Operations`}
+            size="lg"
+          >
+            <VaultOperations
+              vault={selectedVault}
+              onTransactionSuccess={handleTransactionSuccess}
+            />
+          </Modal>
+        )}
       </div>
     </div>
   )
@@ -223,17 +258,12 @@ const VaultsPage = () => {
 // Vault Card Component
 interface VaultCardProps {
   vault: Vault
+  onDeposit: () => void
 }
 
-const VaultCard = ({ vault }: VaultCardProps) => {
+const VaultCard = ({ vault, onDeposit }: VaultCardProps) => {
   const handleDeposit = () => {
-    // TODO: Implement real deposit functionality
-    // 1. Check user wallet connection
-    // 2. Validate deposit amount and minimum requirements
-    // 3. Call smart contract deposit function
-    // 4. Handle transaction states (pending, success, error)
-    // 5. Update user portfolio after successful deposit
-    console.log('Deposit to vault:', vault.id)
+    onDeposit()
   }
 
   const handleInfo = () => {
@@ -331,4 +361,10 @@ const VaultCard = ({ vault }: VaultCardProps) => {
   )
 }
 
-export default VaultsPage
+export default function VaultsPageWithAuth() {
+  return (
+    <PublicPage>
+      <VaultsPage />
+    </PublicPage>
+  )
+}

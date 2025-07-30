@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Fix for WSL2 localhost issues
+  assetPrefix: process.env.NODE_ENV === 'production' ? undefined : '',
+  
   webpack: (config, { dev, isServer }) => {
     // Suppress warnings for pino-pretty in browser
     if (!isServer) {

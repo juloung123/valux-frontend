@@ -21,6 +21,7 @@ export interface Vault {
   minDeposit?: string
   maxDeposit?: string
   category?: 'stable' | 'growth' | 'yield'
+  contractAddress?: string
 }
 
 export interface VaultPosition {
@@ -124,6 +125,8 @@ export interface PlatformMetrics {
   monthlyGrowth: string
   totalYieldGenerated: string
   activeAutomations: string
+  protocols?: { [key: string]: { tvl: string; percentage: number } }
+  lastUpdated?: string
 }
 
 // User Types

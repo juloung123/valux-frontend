@@ -7,7 +7,6 @@ import { apiClient } from './client'
 import { 
   PortfolioOverviewDto, 
   PortfolioPositionDto, 
-  TransactionDto, 
   TransactionQueryDto, 
   TransactionListResponseDto, 
   PortfolioExportQueryDto, 
@@ -61,8 +60,8 @@ export class PortfolioService {
       page: response.page,
       limit: response.limit,
       totalPages: response.totalPages,
-      hasNext: response.hasNext,
-      hasPrev: response.hasPrev,
+      hasNext: response.hasMore,
+      hasPrev: response.page > 1,
     }
   }
 

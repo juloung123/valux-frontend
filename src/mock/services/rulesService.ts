@@ -14,6 +14,15 @@ import { type AutomationRule } from '@/types'
 
 class MockRulesService {
   /**
+   * Get rules for user (alias for getRules)
+   * TODO: Replace with GET /api/user/{address}/rules
+   */
+  async getRulesForUser(userAddress: string): Promise<AutomationRule[]> {
+    const result = await this.getRules(userAddress)
+    return result.rules
+  }
+
+  /**
    * Get user automation rules
    * TODO: Replace with GET /api/user/{address}/rules
    */

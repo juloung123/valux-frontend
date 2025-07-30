@@ -65,6 +65,7 @@ export class AuthService {
   clearAuth(): void {
     apiClient.clearAuthTokens()
   }
+
 }
 
 export const authService = new AuthService()

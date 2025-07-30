@@ -14,6 +14,26 @@ import { type PortfolioPosition, type Transaction } from '@/types'
 
 class MockPortfolioService {
   /**
+   * Get user portfolio overview (alias for getPortfolio)
+   * TODO: Replace with GET /api/user/{address}/portfolio
+   */
+  async getPortfolioOverview(userAddress: string): Promise<{
+    positions: PortfolioPosition[]
+    stats: typeof mockPortfolioStats
+  }> {
+    return this.getPortfolio(userAddress)
+  }
+
+  /**
+   * Get user portfolio positions
+   * TODO: Replace with GET /api/user/{address}/positions
+   */
+  async getPortfolioPositions(userAddress: string): Promise<PortfolioPosition[]> {
+    const result = await this.getPortfolio(userAddress)
+    return result.positions
+  }
+
+  /**
    * Get user portfolio positions
    * TODO: Replace with GET /api/user/{address}/portfolio
    */
